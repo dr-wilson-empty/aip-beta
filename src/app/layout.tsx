@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Nav from "@/components/ui/Nav";
-import WalletProvider from "@/components/connect/WalletProvider";
 
 export const metadata: Metadata = {
   title: "AIP — Agent Internet Protocol",
@@ -17,10 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-bg-base text-off-white font-mono min-h-screen">
-        <WalletProvider>
-          <Nav />
-          <main className="pt-14">{children}</main>
-        </WalletProvider>
+        {children}
       </body>
     </html>
   );
