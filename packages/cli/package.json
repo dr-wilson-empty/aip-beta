@@ -2,7 +2,7 @@
   "name": "@aipagents/cli",
   "version": "0.1.4",
   "description": "Official command-line companion for the Agent Internet Protocol — discover, inspect, and pay autonomous AI agents from your terminal.",
-  "license": "ISC",
+  "license": "MIT",
   "type": "module",
   "main": "./dist/index.js",
   "bin": {

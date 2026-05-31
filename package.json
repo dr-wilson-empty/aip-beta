@@ -17,7 +17,7 @@
     "type": "git",
     "url": "git+https://github.com/Agent-Internet-Protocol/aip-website.git"
   },
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.81.0",
     "@mendable/firecrawl-js": "^4.18.1",
