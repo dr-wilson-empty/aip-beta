@@ -192,16 +192,19 @@ A new `did:aip` identifier is brought into existence by submitting a Solana tran
 ```rust
 pub fn register_agent(
     ctx: Context<RegisterAgent>,
-    agent_id: String,           // 1..=32 chars, [A-Za-z0-9_-]
-    did: String,                // canonical DID, ≤100 chars
-    name: String,               // human-readable, ≤64 chars
-    endpoint: String,           // service endpoint URL, ≤200 chars
-    wallet_address: Pubkey,     // signing key (MAY equal owner)
-    agent_type: u8,             // 0=LLM, 1=Task, 2=Execution
-    capabilities_json: String,  // capability summary, ≤512 chars
-    version: String,            // SemVer, ≤16 chars
+    agent_id: String,                // 1..=32 chars, [A-Za-z0-9_-]
+    did: String,                     // canonical DID, ≤100 chars
+    name: String,                    // human-readable, ≤64 chars
+    endpoint: String,                // service endpoint URL, ≤200 chars
+    wallet_address: Pubkey,          // signing key (MAY equal owner)
+    agent_type: AgentType,           // enum: Llm | Task | Execution
+    capabilities: Vec<Capability>,   // structured, max 8 entries
+    price_per_task: u64,             // base price in lamports
+    version: String,                 // SemVer, ≤16 chars
 ) -> Result<()>;
 ```
+
+Where `AgentType` is an enum `{ Llm, Task, Execution }` and `Capability` is a struct `{ name: String (≤32 chars), description: String (≤64 chars) }`. A record holds at most 8 capabilities. The `price_per_task` field is the base price in lamports per capability invocation.
 
 The instruction:
 
@@ -225,8 +228,9 @@ pub fn update_agent(
     name: String,
     endpoint: String,
     wallet_address: Pubkey,
-    agent_type: u8,
-    capabilities_json: String,
+    agent_type: AgentType,
+    capabilities: Vec<Capability>,
+    price_per_task: u64,
     version: String,
 ) -> Result<()>;
 ```
@@ -312,7 +316,7 @@ Solana transactions include a recent blockhash and are uniquely signed by the ow
 
 ### 7.4 Sybil Resistance
 
-Each registration consumes rent-exempt lamports (≈0.0073 SOL for a 1 048-byte account at the time of writing). Bulk Sybil registration is therefore economically rate-limited. Implementations **MAY** raise this barrier in future versions by requiring an additional staked deposit; such mechanisms are out of scope for v1.0 of this specification.
+Each registration consumes rent-exempt lamports (≈0.0095 SOL for a 1 366-byte account at the time of writing). Bulk Sybil registration is therefore economically rate-limited. Implementations **MAY** raise this barrier in future versions by requiring an additional staked deposit; such mechanisms are out of scope for v1.0 of this specification.
 
 ### 7.5 Endpoint Authenticity
 
@@ -336,7 +340,7 @@ Every field written to an `AgentRecord` is publicly readable for the lifetime of
 
 ### 8.2 Selective Disclosure via Agent Cards
 
-Sensitive metadata - exact pricing tiers, internal capability descriptions, compliance attestations - **SHOULD** be served from the off-chain endpoint, where the operator retains full control over access policy (auth headers, allowlists, regional restrictions). The on-chain `capabilities_json` field is intended only for a coarse, public summary.
+Sensitive metadata - exact pricing tiers, internal capability descriptions, compliance attestations - **SHOULD** be served from the off-chain endpoint, where the operator retains full control over access policy (auth headers, allowlists, regional restrictions). The on-chain `capabilities` list is intended only for a coarse, public summary; richer capability detail lives in the off-chain Agent Card.
 
 ### 8.3 Linkability
 
