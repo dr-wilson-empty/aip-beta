@@ -1,0 +1,33 @@
+{
+  "name": "@aipagents/did-aip-driver",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Universal Resolver driver for the did:aip DID method. Thin HTTP wrapper around @aipagents/did-resolver exposing GET /1.0/identifiers/{did}.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/server.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "dev": "npm run build && node dist/server.js",
+    "test": "node --import tsx --test test/*.test.ts",
+    "register-test-agent": "tsx scripts/register-test-agent.ts",
+    "clean": "rm -rf dist"
+  },
+  "keywords": ["did", "did-resolver", "universal-resolver", "solana", "aip"],
+  "dependencies": {
+    "@aipagents/did-resolver": "^0.1.1",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "@solana/web3.js": "^1.95.0",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.10.0",
+    "bs58": "^5.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.4.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

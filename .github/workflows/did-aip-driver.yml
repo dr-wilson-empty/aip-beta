@@ -1,0 +1,85 @@
+name: did-aip-driver image
+
+# Builds, smoke-tests, and publishes the did:aip Universal Resolver driver image
+# to GHCR. Triggered when the driver changes on main, or manually.
+#
+# After the FIRST successful run, make the published package PUBLIC once:
+#   GitHub -> your profile -> Packages -> driver-did-aip -> Package settings
+#   -> Change visibility -> Public.
+# The Universal Resolver must be able to pull the image anonymously.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "packages/did-aip-driver/**"
+      - ".github/workflows/did-aip-driver.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE: ghcr.io/${{ github.repository_owner }}/driver-did-aip
+
+jobs:
+  build-test-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read driver version from package.json
+        id: ver
+        run: |
+          v=$(node -p "require('./packages/did-aip-driver/package.json').version")
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+          echo "Driver version: $v"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image (load into local daemon for smoke test)
+        uses: docker/build-push-action@v6
+        with:
+          context: ./packages/did-aip-driver
+          load: true
+          tags: ${{ env.IMAGE }}:${{ steps.ver.outputs.version }}
+
+      - name: Smoke test the image (hermetic, no RPC needed)
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: |
+          docker run -d --name aip-driver -p 8080:8080 "${IMAGE}:${VERSION}"
+          for i in $(seq 1 30); do
+            curl -sf -o /dev/null http://localhost:8080/health && break
+            sleep 1
+          done
+          echo "health:"
+          curl -s -w "  <- HTTP %{http_code}\n" http://localhost:8080/health
+          code=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Accept: application/ld+json" \
+            "http://localhost:8080/1.0/identifiers/did:aip:invalid")
+          echo "invalidDid -> HTTP $code (expect 400)"
+          docker logs aip-driver
+          docker rm -f aip-driver
+          test "$code" = "400"
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Push versioned tags (never :latest)
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: |
+          short=$(echo "${GITHUB_SHA}" | cut -c1-12)
+          docker tag "${IMAGE}:${VERSION}" "${IMAGE}:sha-${short}"
+          docker push "${IMAGE}:${VERSION}"
+          docker push "${IMAGE}:sha-${short}"
+          echo "Pushed:"
+          echo "  ${IMAGE}:${VERSION}"
+          echo "  ${IMAGE}:sha-${short}"
