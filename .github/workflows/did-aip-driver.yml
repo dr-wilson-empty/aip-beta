@@ -10,7 +10,7 @@ name: did-aip-driver image
 
 on:
   push:
-    branches: [main, add-did-aip-driver]
+    branches: [main]
     paths:
       - "packages/did-aip-driver/**"
       - ".github/workflows/did-aip-driver.yml"
