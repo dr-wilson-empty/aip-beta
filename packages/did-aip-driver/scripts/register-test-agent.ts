@@ -8,7 +8,7 @@
  * DID. This script creates one and never deregisters it.
  *
  * Properties:
- *   - Stable agent id: "resolver-test" (so the DID is reproducible).
+ *   - Stable agent id: "resolver" (so the DID is reproducible).
  *   - Idempotent: if the agent already exists, it prints the DID and exits 0.
  *   - It does NOT deregister. Treat the resulting agent as infrastructure.
  *
@@ -39,7 +39,7 @@ import { AipDidResolver, formatDid } from "@aipagents/did-resolver";
 
 const PROGRAM_ID = new PublicKey("CgchXu2dRV3r9E1YjRhp4kbeLLtv1Xz61yoerJzp1Vbc");
 const RPC = process.env.SOLANA_RPC_URL ?? "https://api.devnet.solana.com";
-const AGENT_ID = "resolver-test";
+const AGENT_ID = "resolver";
 
 function loadOwner(): Keypair {
   const candidate =
@@ -123,7 +123,7 @@ async function main(): Promise<void> {
     discriminator("register_agent"),
     encodeString(AGENT_ID),
     encodeString(did),
-    encodeString("AIP Resolver Test Agent"),
+    encodeString("AIP Resolver Agent"),
     encodeString("https://resolver.test/agent"),
     owner.publicKey.toBytes(), // wallet_address
     Uint8Array.from([2]), // AgentType::Execution
