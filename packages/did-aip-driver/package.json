@@ -1,6 +1,6 @@
 {
   "name": "@aipagents/did-aip-driver",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Universal Resolver driver for the did:aip DID method. Thin HTTP wrapper around @aipagents/did-resolver exposing GET /1.0/identifiers/{did}.",
   "license": "MIT",
@@ -16,7 +16,7 @@
   },
   "keywords": ["did", "did-resolver", "universal-resolver", "solana", "aip"],
   "dependencies": {
-    "@aipagents/did-resolver": "^0.1.1",
+    "@aipagents/did-resolver": "^0.1.2",
     "express": "^4.19.2"
   },
   "devDependencies": {
