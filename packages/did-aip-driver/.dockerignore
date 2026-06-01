@@ -1,0 +1,10 @@
+# Keep the build context small and reproducible. The builder installs deps from
+# package-lock.json and compiles src itself, so host artifacts must not leak in.
+node_modules
+dist
+test
+scripts
+*.log
+.DS_Store
+Dockerfile
+.dockerignore
