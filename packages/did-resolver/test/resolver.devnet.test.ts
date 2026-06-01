@@ -134,7 +134,8 @@ test("resolver round-trip against live Devnet", { skip: loadOwner() === null }, 
   assert.ok(result.didDocument, "DID Document must be present");
   assert.equal(result.didDocument!.id, did);
   assert.equal(result.didDocument!.controller, did);
-  assert.equal(result.didDocument!.verificationMethod[0].publicKeyMultibase, `z${owner.publicKey.toBase58()}`);
+  const expectedMultibase = `z${bs58.encode(Uint8Array.from([0xed, 0x01, ...owner.publicKey.toBytes()]))}`;
+  assert.equal(result.didDocument!.verificationMethod[0].publicKeyMultibase, expectedMultibase, "publicKeyMultibase must be multicodec ed25519 (z6Mk form)");
   assert.equal(result.didDocument!.service[0].serviceEndpoint, "https://resolver.test/agent");
   assert.ok(result.agentRecord, "agentRecord must be returned");
   assert.equal(result.agentRecord!.agentId, agentId);

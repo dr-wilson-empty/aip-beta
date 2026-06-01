@@ -119,9 +119,11 @@ The single canonical verification method **MUST** be constructed as:
   "id": "<DID>#key-1",
   "type": "Ed25519VerificationKey2020",
   "controller": "<DID>",
-  "publicKeyMultibase": "z<multibase-base58btc(record.wallet_address)>"
+  "publicKeyMultibase": "z<base58btc(0xed01 || record.wallet_address)>"
 }
 ```
+
+The `publicKeyMultibase` value **MUST** be the multibase-base58btc encoding (`z` prefix) of the multicodec-tagged key: the `ed25519-pub` prefix `0xed01` followed by the 32-byte Ed25519 public key. This is the canonical `z6Mk...` form required by the Ed25519VerificationKey2020 suite, not a bare base58 of the raw key.
 
 The `wallet_address` field of `AgentRecord` **MAY** differ from the `owner` field. This permits an operator (`owner`) to delegate signing authority for off-chain protocol messages to a separate hot key (`wallet_address`) without surrendering on-chain administrative control over the record. Resolvers **MUST** surface this distinction by exposing `controller` (derived from `owner`) and `verificationMethod.publicKeyMultibase` (derived from `wallet_address`) as independent values.
 
@@ -169,7 +171,7 @@ The endpoint **MUST** be an `https://` URL or a fully-qualified protocol-prefixe
     "id": "did:aip:7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU:ada-research-001#key-1",
     "type": "Ed25519VerificationKey2020",
     "controller": "did:aip:7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU:ada-research-001",
-    "publicKeyMultibase": "z9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+    "publicKeyMultibase": "z6MkmQaaUvGdqfc6FcJDz1BfSJdj1KyVsiQUjUUMjamtbPer"
   }],
   "authentication": ["did:aip:...:ada-research-001#key-1"],
   "assertionMethod":  ["did:aip:...:ada-research-001#key-1"],

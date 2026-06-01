@@ -133,12 +133,27 @@ function failure(_did: string, error: "invalidDid" | "notFound" | "internalError
   };
 }
 
+/**
+ * Encode an Ed25519 public key as an Ed25519VerificationKey2020
+ * `publicKeyMultibase`: multibase-base58btc of the multicodec-prefixed key
+ * (0xed01 varint || 32-byte key). This yields the canonical `z6Mk...` form
+ * required by the suite, not a bare base58 of the raw key.
+ */
+function ed25519Multibase(base58Pubkey: string): string {
+  const raw = bs58.decode(base58Pubkey);
+  const prefixed = new Uint8Array(2 + raw.length);
+  prefixed[0] = 0xed; // ed25519-pub multicodec (varint low byte)
+  prefixed[1] = 0x01; // varint high byte
+  prefixed.set(raw, 2);
+  return `z${bs58.encode(prefixed)}`;
+}
+
 function buildDidDocument(did: string, record: AgentRecord): DidDocument {
   const verificationMethod: VerificationMethod = {
     id: `${did}#key-1`,
     type: "Ed25519VerificationKey2020",
     controller: did,
-    publicKeyMultibase: `z${record.walletAddress}`,
+    publicKeyMultibase: ed25519Multibase(record.walletAddress),
   };
 
   const service: ServiceEndpoint = {

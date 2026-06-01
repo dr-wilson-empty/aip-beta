@@ -18,7 +18,7 @@
  *   npx tsx scripts/register-test-agent.ts
  *
  * On success it prints the canonical DID:
- *   did:aip:<owner_pubkey>:resolver-test
+ *   did:aip:<owner_pubkey>:resolver
  * Put that exact string into the driver's testIdentifiers (PR application.yml).
  */
 
