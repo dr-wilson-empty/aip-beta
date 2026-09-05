@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Nav from "@/components/ui/Nav";
+import DemoBanner, { DEMO_BANNER_HEIGHT } from "@/components/ui/DemoBanner";
 import WalletProvider from "@/components/connect/WalletProvider";
 import WalletSync from "@/components/connect/WalletSync";
 
@@ -24,8 +25,9 @@ export default function RootLayout({
       <body className="font-mono min-h-screen" style={{ backgroundColor: "#e6e5e0", color: "#000000" }} suppressHydrationWarning>
         <WalletProvider>
           <WalletSync />
+          <DemoBanner />
           <Nav />
-          <main className="pt-14" style={{ paddingTop: 63 }}>{children}</main>
+          <main style={{ paddingTop: 63 + DEMO_BANNER_HEIGHT }}>{children}</main>
         </WalletProvider>
       </body>
     </html>

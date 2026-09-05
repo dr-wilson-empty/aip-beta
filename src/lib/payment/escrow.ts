@@ -1,5 +1,4 @@
 import { Keypair, PublicKey } from "@solana/web3.js";
-import bs58 from "bs58";
 import { dbUpsertEscrow } from "@/lib/supabase/db";
 import {
   programReleaseEscrow,
@@ -9,34 +8,15 @@ import { sendAgentShare, getCommissionTarget, calculateSplit } from "./commissio
 import { logger } from "@/lib/logger";
 
 /* ------------------------------------------------------------------ */
-/*  Authority Keypair (server wallet — can release/refund escrows)      */
+/*  Authority Keypair                                                   */
+/*                                                                      */
+/*  Moved to ./authority — that module is now the only place            */
+/*  ESCROW_PRIVATE_KEY is read, and it is where the kill switch lives.  */
+/*  Re-exported so existing import sites keep working.                  */
 /* ------------------------------------------------------------------ */
 
-let _authorityKeypair: Keypair | null = null;
-
-/**
- * Authority keypair'ini env'den yukler.
- * ESCROW_PRIVATE_KEY: base58 encoded — Phase 1'deki escrow wallet,
- * simdi PDA escrow'lar icin "authority" rolunde.
- */
-export function getAuthorityKeypair(): Keypair {
-  if (_authorityKeypair) return _authorityKeypair;
-
-  const key = process.env.ESCROW_PRIVATE_KEY;
-  if (!key) {
-    throw new Error(
-      "ESCROW_PRIVATE_KEY environment variable is not set. " +
-        "This key is used as the escrow authority (release/refund signer)."
-    );
-  }
-
-  _authorityKeypair = Keypair.fromSecretKey(bs58.decode(key));
-  return _authorityKeypair;
-}
-
-export function getAuthorityAddress(): string {
-  return getAuthorityKeypair().publicKey.toBase58();
-}
+import { getAuthorityKeypair } from "./authority";
+export { getAuthorityKeypair, getAuthorityAddress } from "./authority";
 
 /* ------------------------------------------------------------------ */
 /*  Escrow Record Store (in-memory)                                    */

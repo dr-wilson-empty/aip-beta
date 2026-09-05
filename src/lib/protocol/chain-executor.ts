@@ -12,7 +12,6 @@
  * Completed steps keep their payments (partial execution is valid).
  */
 import {
-  Keypair,
   PublicKey,
   Transaction,
   sendAndConfirmTransaction,
@@ -22,9 +21,9 @@ import {
   getAccount,
   createAssociatedTokenAccountInstruction,
 } from "@solana/spl-token";
-import bs58 from "bs58";
 import { getConnection } from "@/lib/solana/connection";
 import { buildInitializeEscrowIx } from "@/lib/solana/escrow-program";
+import { getAuthorityKeypair } from "@/lib/payment/authority";
 import { createEscrowRecord, releaseEscrow, refundEscrow } from "@/lib/payment/escrow";
 import { reserveBudget, refundBudget } from "@/lib/payment/agent-budget";
 import { getHostedAgent } from "@/lib/hosted-agents";
@@ -68,12 +67,6 @@ export function listChains(): TaskChain[] {
 /* ------------------------------------------------------------------ */
 /*  Helpers                                                            */
 /* ------------------------------------------------------------------ */
-
-function getAuthorityKeypair(): Keypair {
-  const key = process.env.ESCROW_PRIVATE_KEY;
-  if (!key) throw new Error("ESCROW_PRIVATE_KEY not set");
-  return Keypair.fromSecretKey(bs58.decode(key));
-}
 
 function getUsdcMint(): PublicKey {
   const mint = process.env.USDC_MINT_DEVNET;

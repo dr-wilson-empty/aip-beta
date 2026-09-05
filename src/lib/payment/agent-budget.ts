@@ -14,7 +14,6 @@
  */
 import {
   PublicKey,
-  Keypair,
   Transaction,
   sendAndConfirmTransaction,
 } from "@solana/web3.js";
@@ -25,6 +24,7 @@ import {
   createAssociatedTokenAccountInstruction,
   createTransferInstruction,
 } from "@solana/spl-token";
+import { getAuthorityKeypair } from "./authority";
 import { getConnection } from "@/lib/solana/connection";
 import { dbHasDepositTxn } from "@/lib/supabase/agent-budgets";
 import {
@@ -113,15 +113,12 @@ export async function verifyAndCreditDeposit(
 
   // 3-7. Find a USDC transfer matching the expected sender/recipient/amount.
   const mint = getUsdcMint();
-  const authorityPubkey = new PublicKey(process.env.ESCROW_PRIVATE_KEY ? "" : "");
-  // We need the authority's ATA; derive it lazily.
+  // Was: `new PublicKey(cond ? "" : "")` — both branches empty, so this threw
+  // on every call and the function was unreachable. Removed with the key read.
   let authorityAta: PublicKey;
   try {
-    const bs58 = (await import("bs58")).default;
-    if (!process.env.ESCROW_PRIVATE_KEY) throw new Error("ESCROW_PRIVATE_KEY not set");
-    const authorityKp = Keypair.fromSecretKey(bs58.decode(process.env.ESCROW_PRIVATE_KEY));
+    const authorityKp = getAuthorityKeypair();
     authorityAta = await getAssociatedTokenAddress(mint, authorityKp.publicKey);
-    void authorityPubkey;
   } catch (err) {
     throw new Error(
       `Could not derive platform authority ATA: ${err instanceof Error ? err.message : String(err)}`
@@ -259,11 +256,7 @@ export async function withdrawBudget(
 
   // On-chain SPL transfer: authority → owner
   const connection = getConnection();
-  const authorityKey = process.env.ESCROW_PRIVATE_KEY;
-  if (!authorityKey) throw new Error("ESCROW_PRIVATE_KEY not set");
-  const authority = Keypair.fromSecretKey(
-    (await import("bs58")).default.decode(authorityKey)
-  );
+  const authority = getAuthorityKeypair();
   const mint = getUsdcMint();
   const ownerPubkey = new PublicKey(ownerWallet);
 

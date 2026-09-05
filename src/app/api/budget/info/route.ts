@@ -1,22 +1,28 @@
 import { NextResponse } from "next/server";
-import { Keypair } from "@solana/web3.js";
-import bs58 from "bs58";
+import { getAuthorityAddress, isEscrowEnabled } from "@/lib/payment/authority";
 
 /**
  * GET /api/budget/info
  * Returns platform authority address and USDC mint for frontend deposits.
  */
 export async function GET() {
-  const key = process.env.ESCROW_PRIVATE_KEY;
-  const mint = process.env.USDC_MINT_DEVNET;
+  // Tells the frontend where to send a deposit. With escrow off there is
+  // nothing to settle against, so handing out an address would be the worst
+  // possible answer.
+  if (!isEscrowEnabled()) {
+    return NextResponse.json(
+      { error: "Escrow is disabled on this deployment", escrowEnabled: false },
+      { status: 503 }
+    );
+  }
 
-  if (!key || !mint) {
+  const mint = process.env.USDC_MINT_DEVNET;
+  if (!mint) {
     return NextResponse.json({ error: "Platform not configured" }, { status: 500 });
   }
 
-  const kp = Keypair.fromSecretKey(bs58.decode(key));
   return NextResponse.json({
-    authorityAddress: kp.publicKey.toBase58(),
+    authorityAddress: getAuthorityAddress(),
     usdcMint: mint,
   });
 }

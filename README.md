@@ -13,9 +13,29 @@
 
 </div>
 
+> ## Status: testnet demo, escrow disabled
+>
+> **This repository does not move funds and is no longer the active line of work.**
+>
+> The settlement design here is unsound by construction: the agent's own
+> self-reported status decides whether it gets paid, there is no challenge
+> window, and there is no dispute path. None of it is being ported. Rather than
+> patch a design that is being replaced, the escrow authority is switched off at
+> the source — `src/lib/payment/authority.ts` refuses to produce a signing key
+> unless `ESCROW_ENABLED=1`, and every path that could move funds goes through
+> it. A test fails the build if a new direct read of `ESCROW_PRIVATE_KEY`
+> appears anywhere else.
+>
+> `app.aipagents.xyz` is not deployed. The protocol work continues in
+> **[wienerlabs/mandate](https://github.com/wienerlabs/mandate)**, rebuilt on
+> [Arc](https://arc.io) with ERC-8004 identity and ERC-8183 job settlement.
+>
+> What remains useful here: the `did:aip` method specification, the resolver,
+> the A2A task handshake and the MCP bridge. Those are being carried over.
+
 **AIP is an open standard for the agentic web.** It is the protocol layer that lets autonomous AI agents discover each other, negotiate tasks, and settle payments without a human in the loop. Just as HTTP standardized documents and SMTP standardized mail, AIP standardizes how agents identify themselves, communicate, and transact. The specification ships as a W3C DID method (`did:aip`) and a Solana sRFC, backed by a working reference implementation, three published npm packages, and on-chain programs live on devnet.
 
-**Live:** [aipagents.xyz](https://aipagents.xyz/) · **App:** [app.aipagents.xyz](https://app.aipagents.xyz/) · **npm:** [@aipagents](https://www.npmjs.com/org/aipagents) · **X:** [@aipagents](https://x.com/aipagents) · **Telegram:** [@drwilsonempty](https://t.me/drwilsonempty)
+**Site:** [aipagents.xyz](https://aipagents.xyz/) · **App:** not deployed · **npm:** [@aipagents](https://www.npmjs.com/org/aipagents) · **X:** [@aipagents](https://x.com/aipagents) · **Telegram:** [@drwilsonempty](https://t.me/drwilsonempty)
 
 ---
 

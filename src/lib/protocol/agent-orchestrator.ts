@@ -10,12 +10,16 @@
  *
  * This is the "Senaryo 3" — agent-to-agent delegation.
  */
-import { Keypair, PublicKey, Transaction, sendAndConfirmTransaction } from "@solana/web3.js";
+import {
+  PublicKey,
+  Transaction,
+  sendAndConfirmTransaction,
+} from "@solana/web3.js";
 import { getAssociatedTokenAddress, getAccount, createAssociatedTokenAccountInstruction } from "@solana/spl-token";
-import bs58 from "bs58";
 import Anthropic from "@anthropic-ai/sdk";
 import { getConnection } from "@/lib/solana/connection";
 import { buildInitializeEscrowIx } from "@/lib/solana/escrow-program";
+import { getAuthorityKeypair } from "@/lib/payment/authority";
 import { createEscrowRecord, releaseEscrow, refundEscrow } from "@/lib/payment/escrow";
 import { reserveBudget, refundBudget, getAgentBudget } from "@/lib/payment/agent-budget";
 import { getCurrentDateString } from "@/lib/web/realtime-enrichment";
@@ -88,12 +92,6 @@ export type OnOrchestratorStep = (event: {
   taskId?: string;
   escrowTxHash?: string;
 }) => void;
-
-function getAuthorityKeypair(): Keypair {
-  const key = process.env.ESCROW_PRIVATE_KEY;
-  if (!key) throw new Error("ESCROW_PRIVATE_KEY not set");
-  return Keypair.fromSecretKey(bs58.decode(key));
-}
 
 function getUsdcMint(): PublicKey {
   const mint = process.env.USDC_MINT_DEVNET;
