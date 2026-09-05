@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Keypair, PublicKey, Transaction, sendAndConfirmTransaction } from "@solana/web3.js";
+import {
+  PublicKey,
+  Transaction,
+  sendAndConfirmTransaction,
+} from "@solana/web3.js";
 import { getAssociatedTokenAddress, getAccount, createAssociatedTokenAccountInstruction } from "@solana/spl-token";
-import bs58 from "bs58";
 import { getConnection } from "@/lib/solana/connection";
 import { buildInitializeEscrowIx } from "@/lib/solana/escrow-program";
 import { createEscrowRecord, releaseEscrow, refundEscrow } from "@/lib/payment/escrow";
+import { getAuthorityKeypair } from "@/lib/payment/authority";
 import { createTask } from "@/lib/protocol/task-machine";
 import { getCardByDid, getCardByEndpoint } from "@/lib/protocol/agent-card-store";
 import { seedDemoAgents } from "@/lib/protocol/seed-agents";
@@ -15,12 +19,6 @@ import { logger } from "@/lib/logger";
 seedDemoAgents();
 
 const USDC_DECIMALS = 6;
-
-function getAuthorityKeypair(): Keypair {
-  const key = process.env.ESCROW_PRIVATE_KEY;
-  if (!key) throw new Error("ESCROW_PRIVATE_KEY not set");
-  return Keypair.fromSecretKey(bs58.decode(key));
-}
 
 function getUsdcMint(): PublicKey {
   const mint = process.env.USDC_MINT_DEVNET;

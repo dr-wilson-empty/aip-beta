@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { DEMO_BANNER_HEIGHT } from "./DemoBanner";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useWalletStore } from "@/store/walletStore";
@@ -89,9 +90,9 @@ export default function Nav() {
 
   return (
     <nav
-      className="fixed top-0 left-0 right-0 z-50"
+      className="fixed left-0 right-0 z-50"
       aria-label="Main navigation"
-      style={{ backgroundColor: "transparent", paddingTop: 11 }}
+      style={{ top: DEMO_BANNER_HEIGHT, backgroundColor: "transparent", paddingTop: 11 }}
     >
       <div
         style={{
